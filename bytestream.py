@@ -4,7 +4,7 @@ import struct
 def compute_nbytes(x, signed=False):
     if x == 0:
         nbytes = 1
-    if x < 0:
+    elif x < 0:
         nbytes = int(( (math.log(-x,2) + 1) // 8)) + 1
     else:
         if signed:
