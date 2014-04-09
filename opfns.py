@@ -192,17 +192,26 @@ def op_add1(stream, machine):
 
     machine.push(bytestream.bytestream(hex(top_stream.unsigned()+1)))  #TODO verify little or big
 
+def onehasher_maker(hashtype_string):
+    def onehasher(stream, machine):
+        data = machine.pop()
+        hasher = hashlib.new(hashtype_string)
+        hasher.update(data.stream.decode('hex'))
+        hashed = bytestream.bytestream(hasher.hexdigest())
+        machine.push(hashed)
+    return onehasher
 
-def hash160(stream, machine):
-    data = machine.pop()
-    sha256 = hashlib.new('sha256')
-    ripemd160 = hashlib.new('ripemd160')
-    sha256.update(data.stream.decode('hex'))
-    ripemd160.update(sha256.digest())
-    hashed = bytestream.bytestream(ripemd160.hexdigest())
-    machine.push(hashed)
-    return bytestream.bytestream(ripemd160.hexdigest())
-        
+def twohasher_maker(hashtype_string_1, hashtype_string_2):
+    def twohasher(stream, machine):
+        data = machine.pop()
+        first_hasher = hashlib.new(hashtype_string_1)
+        first_hasher.update(data.stream.decode('hex'))
+        second_hasher = hashlib.new(hashtype_string_2)
+        second_hasher.update(first_hasher.digest())
+        hashed = bytestream.bytestream(second_hasher.hexdigest())
+        machine.push(hashed)
+    return twohasher
+    
 def equal(stream, machine):
     x1 = machine.pop()
     x2 = machine.pop()

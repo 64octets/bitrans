@@ -122,13 +122,11 @@ code[162] = op("OP_GREATERTHANOREQUAL", 162, opfns.binary_arith_maker(lambda x, 
 code[163] = op("OP_MIN", 163, opfns.binary_arith_maker(lambda x,y: min(x,y)))
 code[164] = op("OP_MAX", 164, opfns.binary_arith_maker(lambda x,y: max(x,y)))
 code[165] = op("OP_WITHIN", 165)
-code[166] = op("OP_RIPEMD160", 166) 
-code[167] = op("OP_SHA1", 167)
-code[168] = op("OP_SHA256", 168)
-code[169] = op("OP_HASH160",
-               169,
-               opfns.hash160)
-code[170] = op("OP_HASH256", 170)
+code[166] = op("OP_RIPEMD160", 166, opfns.onehasher_maker('ripemd160')) 
+code[167] = op("OP_SHA1", 167, opfns.onehasher_maker('sha1'))
+code[168] = op("OP_SHA256", 168, opfns.onehasher_maker('sha256'))
+code[169] = op("OP_HASH160", 169, opfns.twohasher_maker('sha256','ripemd160'))
+code[170] = op("OP_HASH256", 170, opfns.twohasher_maker('sha256','sha256'))
 code[171] = op("OP_CODESEPARATOR", 171)
 code[172] = op("OP_CHECKSIG", 172, opfns.checksig)
 code[173] = op("OP_CHECKSIGVERIFY", 173)
