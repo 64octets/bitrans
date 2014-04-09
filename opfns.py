@@ -259,6 +259,23 @@ def binary_arith_maker(f):
         machine.push(bytestream.fromsigned(f(x1,x2), max(l1,l2)))
     return binary_arith
 
+def ternary_arith_maker(f):
+    def ternary_arith(stream, machine):
+        s1 = machine.pop()
+        l1 = len(s1)
+        x1 = s1.signed(endian="little")
+
+        s2 = machine.pop()
+        l2 = len(s2)
+        x2 = s2.signed(endian="little")
+
+        s3 = machine.pop()
+        l3 = len(s2)
+        x3 = s2.signed(endian="little")
+
+        machine.push(bytestream.fromsigned(f(x1,x2,x3), max(l1,l2,l3)))
+    return ternary_arith
+
 def opnot(stream, machine):
     x = machine.pop()
     if x.signed() == 0:
