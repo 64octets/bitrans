@@ -327,7 +327,7 @@ def checksig(stream, machine, transaction, index, subscript):
 
     # The hashtype is removed from the last byte of the sig and stored (as 4 bytes)
     hashtype = bytestream.fromunsigned(bytestream.bytestream(sig.stream[-2:]).unsigned(),4)
-    sig.stream = sig.stream[:-2]
+    sig.stream = sig.string()[:-2]
     
     # A copy is made of the current transaction (hereby referred to txCopy)
     txCopy = copy.deepcopy(transaction)
@@ -345,13 +345,13 @@ def checksig(stream, machine, transaction, index, subscript):
     serial = txCopy.encode() + hashtype
 
     # hash twice with sha256
-    msg = ((hashlib.sha256(hashlib.sha256(serial.stream.decode('hex')).digest()).digest()))# [::-1]).encode('hex_codec')
+    msg = ((hashlib.sha256(hashlib.sha256(serial.decode()).digest()).digest()))# [::-1]).encode('hex_codec')
 
     # verify via ecdsa
     key = btct.decompress(pubkey.stream)
     vk = ecdsa.VerifyingKey.from_string(key[2:].decode('hex'), curve=ecdsa.SECP256k1)
     try:
-        vk.verify_digest(sig.stream.decode('hex'), msg, sigdecode=ecdsa.util.sigdecode_der)
+        vk.verify_digest(sig.decode(), msg, sigdecode=ecdsa.util.sigdecode_der)
         machine.push(bytestream.fromunsigned(1,1))
     except ecdsa.BadSignatureError:
         machine.push(bytestream.fromunsigned(0,1))
