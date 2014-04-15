@@ -4,25 +4,39 @@ import machine
 import sys
 
 class transaction:
-    def __init__(self, txid, server):
-        self.server = server
-        tx = server("getrawtransaction", txid, 1)
-        self.txid = txid
-        try:
-            stream = bytestream.bytestream(tx['hex'])
-        except TypeError as e:
-            print "Server returned error. Probably can't find the transaction key."
-            print "\tTypeError error: {0}:".format(e)
-            sys.exit(1)
-        except:
-            print "Unexpected error:", sys.exc_info()[0]
-            raise
-        self.version = stream.read(4).unsigned()
-        self.tx_in_count = stream.readvarlensize()
-        self.tx_in  = [txin(stream) for i in xrange(self.tx_in_count)]
-        self.tx_out_count = stream.readvarlensize()
-        self.tx_out = [txout(stream) for i in xrange(self.tx_out_count)]
-        self.lock_time = stream.read(4).unsigned()
+    def __init__(self, *args):
+        if len(args) < 2:
+            self.version      = 1
+            self.tx_in_count  = 0
+            self.tx_in        = []
+            self.tx_out_count = 0
+            self.tx_out       = []
+            self.lock_time    = 0
+            if len(args) == 1:
+                self.server = args[0]
+        elif len(args) == 2:
+            txid = args[0]
+            server = args[1]
+            self.server = server
+            tx = server("getrawtransaction", txid, 1)
+            self.txid = txid
+            try:
+                stream = bytestream.bytestream(tx['hex'])
+            except TypeError as e:
+                print "Server returned error. Probably can't find the transaction key."
+                print "\tTypeError error: {0}:".format(e)
+                sys.exit(1)
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                raise
+            self.version      = stream.read(4).unsigned()
+            self.tx_in_count  = stream.readvarlensize()
+            self.tx_in        = [txin(stream) for i in xrange(self.tx_in_count)]
+            self.tx_out_count = stream.readvarlensize()
+            self.tx_out       = [txout(stream) for i in xrange(self.tx_out_count)]
+            self.lock_time    = stream.read(4).unsigned()
+        else:
+            raise ValueError("Zero or two args")
 
     def verify(self, animate=False):
         valid = True
@@ -53,19 +67,36 @@ class transaction:
         stream += bytestream.fromunsigned(self.lock_time,4)
         return stream
 
+    def broadcast(self):
+        raw = self.encode().stream
+        print raw
+        result = self.server("sendrawtransaction", raw)
+        return not result is None
+
             
 class txin:
-    def __init__(self, stream):
-        self.prev_hash = str(stream.read(32).reverse().stream)
-        self.index = stream.read(4).unsigned()
-        self.script_length = stream.readvarlensize()
-        self.script = script.script(stream.read(self.script_length))
-        self.sequence = stream.read(4).unsigned()
-
-        if int(self.prev_hash,16) == 0:
-            self.is_coinbase = True
+    def __init__(self, *args):
+        if len(args) == 0:
+            self.prev_hash     = str(bytestream.fromunsigned(0,32))
+            self.index         = 1
+            self.script_length = 0
+            self.script        = None
+            self.sequence      = 0
+            self.is_coinbase   = True
+        elif len(args) == 1:
+            stream = args[0]
+            self.prev_hash     = str(stream.read(32).reverse().stream)
+            self.index         = stream.read(4).unsigned()
+            self.script_length = stream.readvarlensize()
+            self.script        = script.script(stream.read(self.script_length))
+            self.sequence      = stream.read(4).unsigned()
+            
+            if int(self.prev_hash,16) == 0:
+                self.is_coinbase = True
+            else:
+                self.is_coinbase = False
         else:
-            self.is_coinbase = False
+            raise ValueError("Zero or one args")
 
     def encode(self):
         stream = bytestream.bytestream("")
@@ -77,10 +108,18 @@ class txin:
         return stream
 
 class txout:
-    def __init__(self, stream):
-        self.value = stream.read(8).unsigned()
-        self.script_length = stream.readvarlensize()
-        self.script = script.script(stream.read(self.script_length))
+    def __init__(self, *args):
+        if len(args) == 0:
+            self.value = 0
+            self.script_length = 0
+            self.script = None
+        elif len(args) == 1:
+            stream = args[0]
+            self.value         = stream.read(8).unsigned()
+            self.script_length = stream.readvarlensize()
+            self.script        = script.script(stream.read(self.script_length))
+        else:
+            raise ValueError("Zero or one args")
 
     def encode(self):
         stream = bytestream.bytestream("")
