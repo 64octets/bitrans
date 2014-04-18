@@ -1,15 +1,19 @@
 import ops
 import bytestream
-import script
+import script as scr
 
-def compile(filename):
+def script(obj):
     """
-    Compile a .bt file into a script.
+    Compile a .bs file into a script.
 
     """
-    f = open(filename,'r')
-    raw_string = f.read().replace('\n',' ')
-    raw_list = [x for x in raw_string.split(' ') if x != '']
+    if instanceof(obj,str):
+        f = open(filename,'r')
+        raw_string = f.read().replace('\n',' ')
+        f.close()
+        raw_list = [x for x in raw_string.split(' ') if x != '']
+    else:
+        raw_list = obj
     parsed_list = []
     #for i in xrange(1,len(raw_list)):
     for item in raw_list:
@@ -35,5 +39,14 @@ def compile(filename):
             stream += parsed_item.stream()
         else:
             stream += parsed_item
-    return script.script(stream)
+    return scr.script(stream)
+    
+#def transaction(filename):
+#    f = open(filename,'r')
+#    raw_string = f.read()
+#    f.close()
+#    raw_lists = [raw.split(' ') for raw in raw_string.split('\n')]
+#    assert(raw_lists[0] == 'scriptPubKey:')
+#    assert(raw_lists[1] == 'scriptSig:')
+    
     

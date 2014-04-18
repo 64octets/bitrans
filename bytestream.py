@@ -1,5 +1,6 @@
 import math
 import struct
+import copy
 
 def compute_nbytes(x, signed=False):
     if x == 0:
@@ -44,6 +45,7 @@ def fromvarlen(x):
 class bytestream:
     def __init__(self,string):
         self.stream = string
+        self.__pristine = copy.deepcopy(string)
     
     def __repr__(self):
         return self.stream
@@ -62,6 +64,18 @@ class bytestream:
         Returns length in bytes. Since hex representation is 4 bits
         """
         return len(self.stream) / 2
+
+    def reset(self):
+        self.stream = copy.deepcopy(self.__pristine)
+
+    def string(self):
+        return self.__str__()
+
+    def decode(self):
+        """
+        decode into a binary string
+        """
+        return self.stream.decode('hex')
 
     def reverse(self):
         bits = self.stream.decode('hex_codec')
