@@ -5,7 +5,8 @@ import bytestream
 class message:
     def __init__(self, payload):
         self.magic = bytestream.bytestream("F9BEB4D9")
-        self.command = bytestream.bytestream("000000000000000000000000")
+        #self.command = bytestream.bytestream("000000000000000000000000")
+        self.command = bytestream.bytestream("747800000000000000000000")
         self.length = bytestream.fromunsigned(len(payload))
 
         first_hasher = hashlib.new('sha256')
@@ -54,10 +55,13 @@ class client:
 class clients:
     def __init__(self, server):
         self.server = server
+        self.refresh()
+
+    def refresh(self):
         self.clients = []
-        cdicts = server("getpeerinfo")
+        cdicts = self.server("getpeerinfo")
         for cdict in cdicts:
-            self.clients.append(client(cdict, server))
+            self.clients.append(client(cdict, self.server))
 
     def sendMessage(self, msg):
         results = []
