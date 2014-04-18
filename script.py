@@ -13,12 +13,20 @@ class script:
         else:
             self.bstream = s
         self.iterator = copy.deepcopy(self.bstream)
+        self.nops = None
 
     def __add__(self, other):
         return script(self.bstream + other.bstream)
 
     def __len__(self):
         return len(self.bstream)
+
+    def opcount(self):
+        if self.nops is None:
+            stack_machine = machine.machine()
+            machine.lock()   #don't actually do anything
+            self.interpret(stack_machine)
+        return self.nops
 
     def stream(self):
         return copy.deepcopy(self.bstream)
@@ -72,6 +80,11 @@ class script:
             # usual case
             else:
                 op(self.iterator, stack_machine)
+
+            if self.nops is None:
+                self.nops = 1
+            else:
+                self.nops += 1
                 
             if animate:
                 stack_machine.draw(op)
