@@ -243,6 +243,8 @@ def unary_arith_maker(f):
         s = machine.pop()
         l = len(s)
         x = s.signed(endian="little")
+        if l > 4:
+            raise InvalidTransactionException('Integer longer than 4 bytes')
         machine.push(bytestream.fromsigned(f(x), l))
     return unary_arith
 
@@ -255,6 +257,9 @@ def binary_arith_maker(f):
         s2 = machine.pop()
         l2 = len(s2)
         x2 = s2.signed(endian="little")
+
+        if l1 > 4 or l2 > 4:  # input is longer than 4 bytes
+            raise InvalidTransactionException('Integer longer than 4 bytes')
 
         machine.push(bytestream.fromsigned(f(x1,x2), max(l1,l2)))
     return binary_arith
