@@ -26,6 +26,7 @@ class script:
             stack_machine = machine.machine()
             machine.lock()   #don't actually do anything
             self.interpret(stack_machine)
+            machine.unlock()
         return self.nops
 
     def stream(self):
