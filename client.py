@@ -7,7 +7,7 @@ class message:
         self.magic = bytestream.bytestream("F9BEB4D9")
         #self.command = bytestream.bytestream("000000000000000000000000")
         self.command = bytestream.bytestream("747800000000000000000000")
-        self.command = bytestream.bytestream("000000000000000000000000")
+        #self.command = bytestream.bytestream("000000000000000000000000")
         self.length = bytestream.fromunsigned(len(payload))
 
         first_hasher = hashlib.new('sha256')
