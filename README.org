@@ -50,48 +50,6 @@ python
 t.verify()
 #+end_src
 
-* Description
-  *this is outdated*
-  Here's how it works:
-
-  There are three primary abstractions: opcodes, bytestreams, and
-  machines.  A stream is a sequence of bytes; it is implemented as a
-  wrapper around python strings of human readable hex (like 'AFAF').
-  A machine consists of two stacks (a primary and alternative stack).
-  An opcode takes a stream and a machine as input and does stuff
-  (maybe mutates) one, both, or neither.
-
-  Byte streams will be a mixture of opcodes and 'raw' data.  The
-  elements of the stacks are themselves bytestreams.  Raw data is
-  interpreted as variable-length little-endian signed integers.
-  Opcodes are one-byte unsigned +little-endian+ big-endian ints.
-  
-  There doesn't seem to be any reason to compile anything.  A script
-  is interpreted by continually reading an opcode from a stream
-  representing the script and applying the opcode to the stream and a
-  machine.  +I think scripts have headers but I haven't quite figured
-  it out yet.+ (Multiple) scripts are embedded in transactions which
-  provide some metadata.  A transaction is valid if all scripts do not
-  fail during interpretation and the top stack item after
-  interpretation is true.
-
-* Structure
-  + ops.py: Opcode implementations.
-  + opfns.py: Implementations of the functions that opcodes are built from.
-  + machine.py: Stack machine implementation.
-  + bytestream.py: Bytestream implementation.
-  + script.py: Implements a script.
-  + transaction.py: Parses and represents entire transactions.
-
-* Immediate todo
-  + Implement remaining opfns and ops
-
-* Fun todo
-  + Write a higher-level representation which compiles to bytestreams.
-  + Animate the process of interpreting a script.
-  + Throw a whole bunch of garbage at the vm and see if anything
-    causes it to lock up or overflow or something.
-
 * Running tests
   Install and run nose:
 #+begin_src sh
